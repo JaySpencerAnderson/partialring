@@ -13,4 +13,4 @@ Then of course that seemed like a good little programming project... and here it
 
 So future plans are to draw color coded lines between the points.
 
-[Try out the page - maybe](http://htmlpreview.github.io/?https://github.com/JaySpencerAnderson/trivial/partialring/partialring.html)
+[Try out the page](https://htmlpreview.github.io/?https://github.com/JaySpencerAnderson/partialring/blob/master/partialring.html)
