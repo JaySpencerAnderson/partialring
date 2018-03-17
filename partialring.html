@@ -33,7 +33,13 @@
     <td><canvas id="canvasC" tabindex='1' width="100" height="100"></canvas></td>
     </tr>
 </table>
-<p id="results"></p>
+<p>
+In each of the figures, the black line segments have no other line segments that are parallel.
+Each of the filled-in black points is the endpoint of at least one black line.
+<p>
+The gray lines connect two filled-in black points but the gray lines have another gray line
+in the figure which is parallel.  See if you can pick out the trapezoid(s) with the
+parallel gray lines.  This is pretty easy to spot in the first figure.
 <script>
 	// Partial Ring
 	function PartialRing(total,id){
@@ -50,6 +56,28 @@
 				});
 			}
 		}
+		this.isDuplicate = function(i,j,lmod){
+			var jb=(j+lmod-i)%lmod;
+
+			// One way
+			if(jb >=3){
+				for(var k=1;(2*k)<jb;k++){
+					if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
+						return true;
+					}
+				}
+			}
+
+			// The other way
+			if(jb < (lmod-2)){
+				for(var k=1;((2*k)+jb)<lmod;k++){
+					if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 		this.decimate = function(){
 			// abbreviation, used a lot here
 			const lmod=this.point.length;
@@ -58,43 +86,34 @@
 				var required=false;
 				for(var jb=1;jb<lmod;jb++){
 					var j=(i+jb)%lmod;
-					console.log(i + ", " + j + " with " + jb);
-					var duplicate=false;
-					// One way
-					if(jb >=3){
-						console.log("Checking One Way");
-						for(var k=1;(2*k)<jb;k++){
-							console.log(" Checking " + (i+k+lmod)%lmod + ", " + (j-k+lmod)%lmod);
-							if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
-								console.log(i + ", " + j + " ?  " + (i+k+lmod)%lmod + ", " + (j-k+lmod)%lmod);
-								duplicate=true;
-								break;
-							}
-						}
-					}
+//					var duplicate=false;
+//					// One way
+//					if(jb >=3){
+//						for(var k=1;(2*k)<jb;k++){
+//							if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
+//								duplicate=true;
+//								break;
+//							}
+//						}
+//					}
 
 					// The other way
-					if(jb < (lmod-2)){
-						console.log("Checking The Other Way");
-						for(var k=1;((2*k)+jb)<lmod;k++){
-							console.log("  Checking " + (i-k+lmod)%lmod + ", " + (j+k+lmod)%lmod);
-							if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
-								console.log(i + ", " + j + " ?  " + (i-k+lmod)%lmod + ", " + (j+k+lmod)%lmod);
-								duplicate=true;
-								break;
-							}
-						}
-					}
-					if(duplicate === false){
+//					if(jb < (lmod-2)){
+//						for(var k=1;((2*k)+jb)<lmod;k++){
+//							if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
+//								duplicate=true;
+//								break;
+//							}
+//						}
+//					}
+//					if(duplicate === false){
+					if(this.isDuplicate(i,j,lmod) === false){
 						required=true;
 						break;
 					}
 				}
 				if(required === false){
 					this.point[i].enable=false;
-				}
-				else {
-					console.log(i + " is required ");
 				}
 			}
 		}
@@ -106,6 +125,7 @@
 
 			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
 			ctx.fillStyle = "#000000";
+			ctx.strokeStyle = "#000000";
 
 			for(var i=0;i<this.point.length;i++){
 				if(this.point[i].enable === true){
@@ -124,6 +144,25 @@
 				}
 			}
 			ctx.stroke();
+			for(var i=0;i<this.point.length;i++){
+				for(var jb=1;jb<this.point.length;jb++){
+					j=(i+jb)%this.point.length;
+					if(this.point[i].enable && this.point[j].enable){
+						ctx.beginPath();
+						if(this.isDuplicate(i,j,this.point.length)){
+							ctx.strokeStyle = "#CCCCCC";
+						}
+						else {
+							ctx.strokeStyle = "#000000";
+						}
+						ctx.moveTo(xc+(radius*this.point[i].x),
+							yc+(radius*this.point[i].y));
+						ctx.lineTo(xc+(radius*this.point[j].x),
+							yc+(radius*this.point[j].y));
+						ctx.stroke();
+					}
+				}
+			}
 		}
 		this.point=[];
 		this.init(total);
