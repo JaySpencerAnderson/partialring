@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<meta charset="UTF-8">
+<head>
+<title>Partial Ring - Indicate directions with a decimated ring of points</title>
+</head>
+<body>
+<table>
+<tr><td><canvas id="canvas5" tabindex='1' width="100" height="100"></canvas></td></tr>
+<tr><td><hr></td></tr>
+<tr><td><canvas id="canvas6" tabindex='1' width="100" height="100"></canvas></td></tr>
+<tr><td><hr></td></tr>
+<tr><td><canvas id="canvas7" tabindex='1' width="100" height="100"></canvas></td></tr>
+<tr><td><hr></td></tr>
+<tr><td><canvas id="canvas8" tabindex='1' width="100" height="100"></canvas></td></tr>
+</table>
+<p id="results"></p>
+<script>
+	// Partial Ring
+	function PartialRing(total,id){
+		this.init = function(total){
+			if(total < 4){
+				total = 4;
+			}
+			for(var i=0;i<total;i++){
+				this.point.push({
+					x: Math.cos(Math.PI*2*i/total),
+					y: Math.sin(Math.PI*2*i/total),
+					angle: 360*i/total,
+					enable: true
+				});
+			}
+		}
+		this.decimate = function(){
+			// abbreviation, used a lot here
+			const lmod=this.point.length;
+			// Check every point to see if it is redundant 
+			for(var i=0;i<lmod;i++){
+				var required=false;
+				for(var jb=1;jb<lmod;jb++){
+					var j=(i+jb)%lmod;
+					console.log(i + ", " + j + " with " + jb);
+					var duplicate=false;
+					// One way
+					if(jb >=3){
+						console.log("Checking One Way");
+						for(var k=1;(2*k)<jb;k++){
+							console.log(" Checking " + (i+k+lmod)%lmod + ", " + (j-k+lmod)%lmod);
+							if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
+								console.log(i + ", " + j + " ?  " + (i+k+lmod)%lmod + ", " + (j-k+lmod)%lmod);
+								duplicate=true;
+								break;
+							}
+						}
+					}
+
+					// The other way
+					if(jb < (lmod-2)){
+						console.log("Checking The Other Way");
+						for(var k=1;((2*k)+jb)<lmod;k++){
+							console.log("  Checking " + (i-k+lmod)%lmod + ", " + (j+k+lmod)%lmod);
+							if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
+								console.log(i + ", " + j + " ?  " + (i-k+lmod)%lmod + ", " + (j+k+lmod)%lmod);
+								duplicate=true;
+								break;
+							}
+						}
+					}
+					if(duplicate === false){
+						required=true;
+						break;
+					}
+				}
+				if(required === false){
+					this.point[i].enable=false;
+				}
+				else {
+					console.log(i + " is required ");
+				}
+			}
+		}
+		this.draw = function(ctx){
+			var xc=Math.floor(ctx.canvas.width/2);
+			var yc=Math.floor(ctx.canvas.height/2);
+			var lr=3;
+			var radius=Math.min(xc,yc)-lr;
+
+			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+			ctx.fillStyle = "#000000";
+
+			for(var i=0;i<this.point.length;i++){
+				if(this.point[i].enable === true){
+					ctx.fillRect(
+						xc+(radius*this.point[i].x)-lr,
+						yc+(radius*this.point[i].y)-lr,
+						2*lr,
+						2*lr);
+				}
+				else {
+					ctx.rect(
+						xc+(radius*this.point[i].x)-lr,
+						yc+(radius*this.point[i].y)-lr,
+						2*lr,
+						2*lr);
+				}
+			}
+			ctx.stroke();
+		}
+		this.point=[];
+		this.init(total);
+		this.decimate();
+
+		var canvas = document.getElementById(id);
+		var ctx = canvas.getContext("2d");
+
+		this.draw(ctx);
+	}
+	var g=new PartialRing(5,"canvas5")
+	var g=new PartialRing(6,"canvas6")
+	var g=new PartialRing(7,"canvas7")
+	var g=new PartialRing(8,"canvas8")
+</script>
+<hr>
+
+I saw a woman at lunch who was wearing shoes with round faux buckles on them.
+My thought was that it would be possible to fit embedded controllers in the buckles - 
+but for what purpose?
+<br>One purpose I could think of would be a compass that one could 
+wear on hiking boots or trail shoes.
+<br>Then I thought instead of indicating direction
+with one LED in a ring of LED&apos;s with another implied at the center of the ring, one could 
+indicate direction with two LED&apos;s in that ring, defining the line that passes through 
+both of them.
+<br>Then I noticed that a regular circle with evenly spaced LED's would have a lot of 
+redundancy if you just needed two lights to indicate a direction.  I worked out the 
+specifics first for 4 LED's repositioned and they looked like 4 corners of a hexagon.
+<br>Then I figured it out for a few others and found a method.
+<br>Then of course that seemed like a good little programming project.
+
+</body>
+</html>
