@@ -11,6 +11,4 @@ I worked out the specifics first for 4 LED's repositioned and they looked like 4
 Then I figured it out for a few others and found a method.
 Then of course that seemed like a good little programming project... and here it is.
 
-So future plans are to draw color coded lines between the points.
-
 [Try out the page](https://htmlpreview.github.io/?https://github.com/JaySpencerAnderson/partialring/blob/master/partialring.html)
