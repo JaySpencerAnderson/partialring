@@ -6,28 +6,50 @@
 </head>
 <body>
 <table>
-<tr><td><canvas id="canvas5" tabindex='1' width="100" height="100"></canvas></td>
+<tr>
+    <td><canvas id="canvas5" tabindex='1' width="100" height="100"></canvas></td>
     <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
     <td><canvas id="canvas6" tabindex='1' width="100" height="100"></canvas></td>
-    <td></td><td></td><td></td>
-    </tr>
-<tr><td><hr></td><td></td><td><hr></td></tr>
-<tr><td><canvas id="canvas7" tabindex='1' width="100" height="100"></canvas></td>
+    <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
+    <td><canvas id="canvas7" tabindex='1' width="100" height="100"></canvas></td>
     <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
     <td><canvas id="canvas8" tabindex='1' width="100" height="100"></canvas></td>
-    <td></td><td></td><td></td>
     </tr>
+
+<tr><td><hr></td>
+    <td></td>
+    <td><hr></td>
+    <td></td>
+    <td><hr></td>
+    <td></td>
+    <td><hr></td> </tr>
+</table>
+
+<table>
 <tr>
-    <td></td><td></td><td></td>
-    <td><canvas id="canvas9" tabindex='1' width="100" height="100"></canvas></td>
+    <td><canvas tabindex='1' width="100" height="100"></canvas></td>
+    <td><span style="BORDER-LEFT: white 0.05in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
+    <td><canvas id="central" tabindex='1' width="200" height="200"></canvas></td>
+    <td><table><tr><td><button onclick=g_central.ccw()>&#8634;</button></td></tr>
+               <tr><td><button onclick=g_central.cw()>&#8635;</button></td></tr>
+               <tr><td><button onclick=g_central.more()>&gt;</button></td></tr>
+               <tr><td><button onclick=g_central.less()>&lt;</button></td></tr>
+	</table>
+    </tr>
+</table>
+<table>
+<tr><td><hr></td>
+    <td></td>
+    <td><hr></td>
+    <td></td>
+    <td><hr></td>
+    <td></td>
+    <td><hr></td> </tr>
+
+<tr><td><canvas id="canvas9" tabindex='1' width="100" height="100"></canvas></td>
     <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
     <td><canvas id="canvasA" tabindex='1' width="100" height="100"></canvas></td>
-    </tr>
-<tr>
-    <td></td><td></td><td></td>
-    <td><hr></td><td></td><td><hr></td></tr>
-<tr>
-    <td></td><td></td><td></td>
+    <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
     <td><canvas id="canvasB" tabindex='1' width="100" height="100"></canvas></td>
     <td><span style="BORDER-LEFT: black 0.025in solid; DISPLAY: inline-block; HEIGHT: 1.1in"></span></td>
     <td><canvas id="canvasC" tabindex='1' width="100" height="100"></canvas></td>
@@ -38,23 +60,37 @@ In each of the figures, the black line segments have no other line segments that
 Each of the filled-in black points is the endpoint of at least one black line.
 <p>
 The gray lines connect two filled-in black points but the gray lines have another gray line
-in the figure which is parallel.  See if you can pick out the trapezoid(s) with the
+in the figure which is parallel.  See if you can pick out the symmetric trapezoid(s) with the
 parallel gray lines.  This is pretty easy to spot in the first figure.
+<p>
+There will always be exactly N different angles for lines drawn between vertices of an N sided equilateral equiangular polygon.
+<p>
+Instructions for the center figure:
+<ul>
+<li>Click on &#8634; to see the progression of lines in counter-clockwise rotation.
+<li>Click on &#8635; to see the progression of lines in counter-clockwise rotation.
+<li>Click on &gt; to see an arrangement with more points.
+<li>Click on &lt; to see an arrangement with fewer points.
+</ul>
 <script>
 	// Partial Ring
 	function PartialRing(total,id){
 		this.init = function(total){
-			if(total < 4){
-				total = 4;
+			this.inx=0;
+			this.indication=false;
+
+			if(total < 3){
+				total = 3;
 			}
 			for(var i=0;i<total;i++){
-				this.point.push({
-					x: Math.cos(Math.PI*2*i/total),
-					y: Math.sin(Math.PI*2*i/total),
-					angle: 360*i/total,
-					enable: true
-				});
+				this.enable.push(true);
 			}
+		}
+		this.calcX = function(i){
+			return Math.cos(Math.PI*2*i/this.enable.length);
+		}
+		this.calcY = function(i){
+			return Math.sin(Math.PI*2*i/this.enable.length);
 		}
 		this.isDuplicate = function(i,j,lmod){
 			var jb=(j+lmod-i)%lmod;
@@ -62,7 +98,7 @@ parallel gray lines.  This is pretty easy to spot in the first figure.
 			// One way
 			if(jb >=3){
 				for(var k=1;(2*k)<jb;k++){
-					if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
+					if(this.enable[(i+k+lmod)%lmod] && this.enable[(j-k+lmod)%lmod]){
 						return true;
 					}
 				}
@@ -71,7 +107,7 @@ parallel gray lines.  This is pretty easy to spot in the first figure.
 			// The other way
 			if(jb < (lmod-2)){
 				for(var k=1;((2*k)+jb)<lmod;k++){
-					if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
+					if(this.enable[(i-k+lmod)%lmod] && this.enable[(j+k+lmod)%lmod]){
 						return true;
 					}
 				}
@@ -79,99 +115,125 @@ parallel gray lines.  This is pretty easy to spot in the first figure.
 			return false;
 		}
 		this.decimate = function(){
-			// abbreviation, used a lot here
-			const lmod=this.point.length;
 			// Check every point to see if it is redundant 
-			for(var i=0;i<lmod;i++){
+			for(var i=0;i<this.enable.length;i++){
 				var required=false;
-				for(var jb=1;jb<lmod;jb++){
-					var j=(i+jb)%lmod;
-//					var duplicate=false;
-//					// One way
-//					if(jb >=3){
-//						for(var k=1;(2*k)<jb;k++){
-//							if(this.point[(i+k+lmod)%lmod].enable && this.point[(j-k+lmod)%lmod].enable){
-//								duplicate=true;
-//								break;
-//							}
-//						}
-//					}
-
-					// The other way
-//					if(jb < (lmod-2)){
-//						for(var k=1;((2*k)+jb)<lmod;k++){
-//							if(this.point[(i-k+lmod)%lmod].enable && this.point[(j+k+lmod)%lmod].enable){
-//								duplicate=true;
-//								break;
-//							}
-//						}
-//					}
-//					if(duplicate === false){
-					if(this.isDuplicate(i,j,lmod) === false){
+				for(var jb=1;jb<this.enable.length;jb++){
+					var j=(i+jb)%this.enable.length;
+					if(this.isDuplicate(i,j,this.enable.length) === false){
 						required=true;
 						break;
 					}
 				}
 				if(required === false){
-					this.point[i].enable=false;
+					this.enable[i]=false;
 				}
 			}
 		}
-		this.draw = function(ctx){
-			var xc=Math.floor(ctx.canvas.width/2);
-			var yc=Math.floor(ctx.canvas.height/2);
+		this.ccw = function(){
+			if(this.indication){
+				this.inx=(this.inx+this.enable.length-1)%this.enable.length;
+			}
+			else {
+				this.indication=true;
+			}
+			this.draw();
+		}
+		this.cw = function(){
+			if(this.indication){
+				this.inx=(this.inx+1)%this.enable.length;
+			}
+			else {
+				this.indication=true;
+			}
+			this.draw();
+		}
+		this.draw = function(){
+			var xc=Math.floor(this.ctx.canvas.width/2);
+			var yc=Math.floor(this.ctx.canvas.height/2);
 			var lr=3;
 			var radius=Math.min(xc,yc)-lr;
 
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			ctx.fillStyle = "#000000";
-			ctx.strokeStyle = "#000000";
+			this.erase();
+			this.ctx.fillStyle = "#000000";
+			this.ctx.strokeStyle = "#000000";
 
-			for(var i=0;i<this.point.length;i++){
-				if(this.point[i].enable === true){
-					ctx.fillRect(
-						xc+(radius*this.point[i].x)-lr,
-						yc+(radius*this.point[i].y)-lr,
+			for(var i=0;i<this.enable.length;i++){
+				if(this.enable[i] === true){
+					this.ctx.fillRect(
+						xc+(radius*this.calcX(i))-lr,
+						yc+(radius*this.calcY(i))-lr,
 						2*lr,
 						2*lr);
 				}
 				else {
-					ctx.rect(
-						xc+(radius*this.point[i].x)-lr,
-						yc+(radius*this.point[i].y)-lr,
+					this.ctx.beginPath();
+					this.ctx.rect(
+						xc+(radius*this.calcX(i))-lr,
+						yc+(radius*this.calcY(i))-lr,
 						2*lr,
 						2*lr);
+					this.ctx.stroke();
 				}
 			}
-			ctx.stroke();
-			for(var i=0;i<this.point.length;i++){
-				for(var jb=1;jb<this.point.length;jb++){
-					j=(i+jb)%this.point.length;
-					if(this.point[i].enable && this.point[j].enable){
-						ctx.beginPath();
-						if(this.isDuplicate(i,j,this.point.length)){
-							ctx.strokeStyle = "#CCCCCC";
+			for(var i=0;i<this.enable.length;i++){
+				for(var jb=1;jb<this.enable.length;jb++){
+					j=(i+jb)%this.enable.length;
+					var red=this.inx === (i+j)%this.enable.length;
+					if(this.enable[i] && this.enable[j]){
+
+						this.ctx.beginPath();
+						this.ctx.moveTo(xc+(radius*this.calcX(i)),
+							yc+(radius*this.calcY(i)));
+						this.ctx.lineTo(xc+(radius*this.calcX(j)),
+							yc+(radius*this.calcY(j)));
+
+						if(this.isDuplicate(i,j,this.enable.length)){
+							if(red && this.indication){
+								this.ctx.strokeStyle = "#DD8888";
+							}
+							else {
+								this.ctx.strokeStyle = "#CCCCCC";
+							}
 						}
 						else {
-							ctx.strokeStyle = "#000000";
+							if(red && this.indication){
+								this.ctx.strokeStyle = "#FF0000";
+							}
+							else {
+								this.ctx.strokeStyle = "#000000";
+							}
 						}
-						ctx.moveTo(xc+(radius*this.point[i].x),
-							yc+(radius*this.point[i].y));
-						ctx.lineTo(xc+(radius*this.point[j].x),
-							yc+(radius*this.point[j].y));
-						ctx.stroke();
+						this.ctx.stroke();
 					}
 				}
 			}
 		}
-		this.point=[];
+		this.erase = function(){
+			this.ctx.fillStyle = "#FFFFFF";
+			this.ctx.fillRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+		}
+		this.set = function(n){
+			this.enable=[];
+			this.init(n);
+			this.decimate();
+			this.erase();
+			this.draw();
+		}
+		this.less = function(){
+			this.set(this.enable.length-1);
+		}
+		this.more = function(){
+			this.set(this.enable.length+1);
+		}
+		this.enable=[];
 		this.init(total);
 		this.decimate();
 
 		var canvas = document.getElementById(id);
-		var ctx = canvas.getContext("2d");
+		this.ctx = canvas.getContext("2d");
 
-		this.draw(ctx);
+		this.draw();
 	}
 	var g=new PartialRing(5,"canvas5")
 	g=new PartialRing(6,"canvas6")
@@ -181,6 +243,7 @@ parallel gray lines.  This is pretty easy to spot in the first figure.
 	g=new PartialRing(10,"canvasA")
 	g=new PartialRing(11,"canvasB")
 	g=new PartialRing(12,"canvasC")
+	var g_central=new PartialRing(5,"central")
 </script>
 </body>
 </html>
